@@ -36,9 +36,8 @@ def test_standard_scaler_doesnt_divide_by_zero():
 
     result = scaler.fit_transform(X)
 
-    np.testing.assert_allclose(result[:, 0], np.array([0.0, 0.0, 0.0])) # Checks that the 
-    # constant column became all 0s.
-    assert np.all(np.isfinite(result)) # Returns False for nan, inf, or -inf.
+    np.testing.assert_allclose(result[:, 0], np.array([0.0, 0.0, 0.0]))
+    assert np.all(np.isfinite(result))
 
 
 def test_transform_uses_train_stats():

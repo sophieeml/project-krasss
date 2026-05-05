@@ -52,3 +52,22 @@ def test_predict_page_contains_expected_scenarios():
     assert "middle_road" in html
     assert "high_warming" in html
     assert "very_high_warming" in html
+
+
+def test_predict_post_returns_prediction_results():
+    client = app.test_client()
+
+    response = client.post("/predict", data={
+        "county_state": "ALAMEDA COUNTY|CA",
+        "target": "CASTHMA",
+        "scenario": "middle_road",
+    })
+
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert "CASTHMA — ALAMEDA COUNTY, CA" in html
+    assert "Predicted Value (%)" in html
+    assert "Lower 90% CI" in html
+    assert "Upper 90% CI" in html
+    assert "There was a prediction error" not in html
