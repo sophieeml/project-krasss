@@ -3,12 +3,12 @@
 
 # We test the following user workflow: A user opens the home page and can navigate from
 # the home-page cards to Explore, Predict, and Documentation. On the Explore page, the
-# snapshot cards populate and main interactive controls are visible. On the Predict page, 
-# selecting a state updates the county dropdown.
+# snapshot cards populate and main interactive controls are visible. On the Predict page,
+# selecting a state updates the county dropdown and the prediction form can be submitted.
 
 from playwright.sync_api import expect
 
-
+# Requirement: the Flask app must be running locally before the test is started.
 BASE_URL = "http://127.0.0.1:5000"
 
 
@@ -43,6 +43,18 @@ def test_user_can_navigate_from_home_cards(page):
 
     assert county_select.locator("option").count() > 1
     assert county_select.locator('option[data-state="CA"]').count() > 0
+
+    county_select.select_option("ALAMEDA COUNTY|CA")
+    page.locator('select[name="target"]').select_option("CASTHMA")
+    page.locator('select[name="scenario"]').select_option("middle_road")
+
+    page.get_by_role("button", name="Run prediction →").click()
+
+    expect(page.get_by_text("CASTHMA — ALAMEDA COUNTY, CA")).to_be_visible()
+    expect(page.get_by_text("Predicted Value (%)")).to_be_visible()
+    expect(page.get_by_text("Lower 90% CI")).to_be_visible()
+    expect(page.get_by_text("Upper 90% CI")).to_be_visible()
+    expect(page.get_by_text("There was a prediction error")).not_to_be_visible()
 
     page.goto(BASE_URL)
     page.get_by_role("link", name="ABOUT THE DATA →").click()
